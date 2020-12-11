@@ -18,7 +18,8 @@ shinyUI(fluidPage(
   
    # tags$head(includeScript("google_analytics.js")),
   
-  titlePanel("Sentiment Analysis with tidytext"),
+  #titlePanel("Sentiment Analysis with tidytext"),
+  titlePanel(title=div(img(src="logo.png",align='right'),"Sentiment Analysis with tidytext")),
   
   # Input in sidepanel:
   sidebarPanel(
