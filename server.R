@@ -453,5 +453,11 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
     content = function(file) {
        writeLines(readLines("data/onePlus8T_reviews.txt.txt "), file)
     })
+  
+  output$downloadData5 <- downloadHandler(
+    filename = function() { "Bahubali_reviews.txt" },
+    content = function(file) {
+       writeLines(readLines("data/Bahubali_reviews.txt "), file)
+    })  
 
 })
