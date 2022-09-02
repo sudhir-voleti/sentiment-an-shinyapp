@@ -47,6 +47,7 @@ shinyUI(fluidPage(
                          p("To use this app you need a document corpus in txt file format. Make sure each document is separated from another document with a new line character.
                            To do basic sentiment analysis in your text corpus, click on Browse in left-sidebar panel and upload the txt file. Once the file is uploaded it will do the computations in 
                             back-end with default inputs and accordingly results will be displayed in various tabs.", align = "justify"),
+	                       a(href="https://www.youtube.com/watch?v=4b7ZidC6ZOA","Youtube Link for App Navigation"),
                          
                          p("You can change the sentiment dictionary in left-sidebar panel. This app supports four inbuilt sentiment dictionaries and one user defined dictionary. If a user selects User Defined dictionary, then a browse file input will appear below sentiment dictionary drop-down in left-side-bar panel and user can upload the user defined dictionary. This user defined dictionary should be in csv format and first column of the dictionary should be word and second column should be score. You can download the sample user defined dictionary below.", align = "justify"),
                          a(href="http://www2.imm.dtu.dk/pubdb/views/publication_details.php?id=6010","1- Afinn"),
@@ -69,7 +70,8 @@ shinyUI(fluidPage(
                          p("If plots are not working in \"Sentiments - Plot\" tab then please install latest version of ggplot2. You can install ggplot2 by command - install.packages(\"ggplot2\")", align = "justify"),
                          h4(p("Download Sample text file")),
                          downloadButton('downloadData1', 'Download Nokia Lumia reviews txt file (works only in browser)'),br(),br(),
-                         
+                         downloadButton('downloadData4', 'Download One Plus reviews txt file (works only in browser)'),br(),br(),
+			 downloadButton('downloadData5', 'Download Bahubali reviews txt file (works only in browser)'),br(),br(),
                          p("Please note that download will not work with RStudio interface. Download will work only in web-browsers. So open this app in a web-browser and then download the example file. For opening this app in web-browser click on \"Open in Browser\" as shown below -"),
                          img(src = "example1.png")
                        
