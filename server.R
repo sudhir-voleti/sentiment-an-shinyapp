@@ -35,22 +35,46 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
   dataset <- reactive({
         if (is.null(input$file)) {return(NULL)}
     else {
-      text  = readLines(input$file$datapath)
-      text = text[text!=""]
-      
-      if (length(text[text !=""]) == 0 ) stop (print("Null Vector :( "))
-      
-      if (length(text) == 1) {
-        textdf = data_frame(text0 = text) %>% 
-          unnest_tokens(text, text0, token = "sentences")
-      } else {
-        textdf = data_frame(text = text)  
-      }
-      
-    }
-    return(textdf)
-      })
+
+     if(file_ext(input$file$datapath)=="txt"){
+        Document = readLines(input$file$datapath)
+        #colnames(Document) <- c("Doc.id","Document")
+        Doc.id=seq(1:length(Document))
+        calib=data.frame(Doc.id,Document)
+        print(input$file$name)
+        return(calib)} else if(file_ext(input$file$datapath)=="pdf")
+      {          
+        pdf_text0 <- pdftools::pdf_text(input$file$datapath)                
+        pdf_text1 <- str_replace_all(pdf_text0, 
+                                     pattern = "([.!?])\n(\\w)", 
+                                     replacement = "\\1\n\n\\2") 
   
+        # Collapse multiple repetitions of newline into a paragraph break
+        pdf_text1 <- gsub("\n{2,}", "\n\n", pdf_text1)
+        pdf_text1 <- gsub("\n\\s{2,}", " ", pdf_text1)
+  
+        # Combine text from all pages while preserving line breaks
+        pdf_text1 <- paste(pdf_text1, collapse = "\n\n")
+        pdf_text2 <- str_split(pdf_text1, pattern = "\n\n")
+        #Document = pdf_text2
+          Doc.id <- seq(1, length(pdf_text2[[1]]))
+          calib <- data.frame(Doc.id, pdf_text2)
+          colnames(calib) <- c("Doc.id","Documents")
+          print(input$file$name)
+          return(calib)} else
+      {
+      Document = read.csv(input$file$datapath ,header=TRUE, sep = ",", stringsAsFactors = F)
+      Document[,1] <- str_to_title(Document[,1])
+      Document[,1] <- make.names(Document[,1], unique=TRUE)
+      Document[,1] <- tolower(Document[,1])
+      Document[,1] <- str_replace_all(Document[,1],"\\.","_")
+      Document<-Document[complete.cases(Document), ]
+      Document <- Document[!(duplicated(Document[,1])), ]
+      rownames(Document) <- Document[,1]
+      return(Document)      }      
+    }
+  })
+
     stopw = reactive({
         # input = list(stopw = "have had samsung")
         stopwords = data_frame(text = input$stopw) %>%
@@ -80,7 +104,6 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
           anti_join(stopw(), by="word") %>% 
           inner_join(lexicon_data%>%filter(lexicon==input$lexicon)) 
         }
-      
       return(sent)
     })
   
