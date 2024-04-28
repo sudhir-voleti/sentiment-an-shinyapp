@@ -23,7 +23,7 @@ shinyUI(fluidPage(
   
   # Input in sidepanel:
   sidebarPanel(
-    fileInput("file", "Upload text file"),  
+    fileInput("file", "Upload file: TXT, CSV or PDF"),  
     
     selectInput("lexicon", "Sentiment Dictionary",
     c("AFINN","bing","nrc","loughran","User Defined"="userdefined"), selected = "AFINN"),
