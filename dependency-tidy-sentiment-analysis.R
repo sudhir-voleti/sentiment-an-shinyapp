@@ -17,6 +17,9 @@ try(require("reshape2")||install.packages("reshape2"))
 try(require("wordcloud")||install.packages("wordcloud"))
 try(require("plotly")||install.packages("plotly"))
 
+try(require("pdftools")||install.packages("pdftools"))
+try(require("stringr")||install.packages("stringr"))
+
 try(require("tidytext")||install_github("juliasilge/tidytext"))
 try(require("tidytext")||install.packages("tidytext"))
 
@@ -29,3 +32,5 @@ library("DT")
 library("reshape2")
 library("wordcloud")
 library("plotly")
+library("pdftools")
+library("stringr")
