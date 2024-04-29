@@ -289,7 +289,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
   #----------------------------------------------------#
   
   sentiments.index =  eventReactive(input$apply,{
-    textdf = tbl_df(dataset1()[input$index,1]) |> #as.character() |> as.data.frame() |> 
+    textdf = as_tibble(dataset1()$text[input$index]) |> as.character() |> as.data.frame() |> 
           unnest_tokens(text, text, token = "sentences")
   
     if (input$lexicon == "nrc") {
@@ -416,18 +416,18 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
     if (is.null(input$file)|input$apply==0) {return(NULL)} 
     else {
       tb = sentiments.index()
-      tx = dataset1()[input$index, 1] |> #as.character() |> as.data.frame() |>
+      tx = dataset1()$text[input$index] |> as.character() |> as.data.frame() |>
           unnest_tokens(text, text, token = "sentences")      
       y1 = data.frame(tx, Sentence.No = 1:nrow(tx))    
       test = merge(tb, y1, by.x ="Sentence.No", by.y= "Sentence.No", all.y=T)
-      #return(test)
-      return(y1)
+      return(test)
+      #return(y1)
     }    
   })
   
   output$table2 <- renderDataTable({
-    #datatable(t2(), rownames = F)
-    datatable(sentiments.index(), rownames = T)
+    datatable(t2(), rownames = F)
+    #datatable(sentiments.index(), rownames = T)
   }, options = list(lengthMenu = c(5, 30, 50), pageLength = 30))
   
   #----------------------------------------------------#
