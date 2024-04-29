@@ -60,7 +60,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
           calib <- data.frame(Doc.id = Doc.id, text = pdf_text2[[1]])
           colnames(calib) <- c("Doc.id","Documents")
           print(input$file$name)
-          print(glimpse(calib) # deleteable
+          print(glimpse(calib)) # deleteable
           return(calib)} else
       {
       Document = read.csv(input$file$datapath ,header=TRUE, sep = ",", stringsAsFactors = F)
