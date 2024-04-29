@@ -423,8 +423,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
       #textdf = dataset1()
       tx = data.frame(Doc.id = 1:nrow(dataset1()), text=dataset1()) |>                 
                 unnest_tokens(text, text, token = "sentences") |>
-                mutate(Sentence.No. = row_number()) |> filter(Doc.id == input$index) |>
-                select(Doc.id, Sentence.No., sentiment, text)
+                mutate(Sentence.No. = row_number()) |> filter(Doc.id == input$index) 
       
       #tx = textdf |> unnest_tokens(text, text, token = "sentences")      
       y1 = data.frame(tx, Sentence.No = 1:nrow(tx))    
