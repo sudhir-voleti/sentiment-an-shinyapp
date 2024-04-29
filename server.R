@@ -57,9 +57,10 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
         pdf_text1 <- paste(pdf_text1, collapse = "\n\n")
         pdf_text2 <- str_split(pdf_text1, pattern = "\n\n")
           Doc.id <- seq(1, length(pdf_text2[[1]]))
-          calib <- data.frame(docID = Doc.id, text = pdf_text2[[1]])
+          calib <- data.frame(Doc.id = Doc.id, text = pdf_text2[[1]])
           colnames(calib) <- c("Doc.id","Documents")
           print(input$file$name)
+          print(glimpse(calib) # deleteable
           return(calib)} else
       {
       Document = read.csv(input$file$datapath ,header=TRUE, sep = ",", stringsAsFactors = F)
@@ -77,7 +78,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
   cols <- reactive({colnames(dataset())})
   y_col <- reactive({
       x <- match(input$x, cols())
-      y_col <- cols()[-x]
+      y_col <- cols()[-x]    
       return(y_col)     })
   
   output$id_var <- renderUI({ print(cols())
@@ -88,8 +89,12 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
  output$up_size <- renderPrint({ size <- dim(dataset())
     paste0("Dimensions of uploaded data: ",size[1]," (rows) X ", size[2]," (Columns)") })
 
-  dataset1 <- reactive({ y1 <- match(input$y, cols())
-    df0 <- data.frame(text = dataset()[,y1]); return(df0) })
+  dataset1 <- reactive({ 
+    y1 <- match(input$y, cols())
+    print("y1 value is ",y1) 
+    df0 <- data_frame(text = dataset()[,y1])
+    print("df0 is ", glimpse(df0))
+    return(df0) })
 
    output$up_size <- renderPrint({
     size <- dim(dataset())
