@@ -38,9 +38,9 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
 
      if(file_ext(input$file$datapath)=="txt"){
         Document = readLines(input$file$datapath)        
-        #Doc.id=seq(1:length(Document))
-        calib=data.frame(text = Document)
-        #colnames(calib) <- c("Doc.id","text")
+        Doc.id=seq(1:length(Document))
+        calib=data.frame(Doc.id=Doc.id, text = Document)
+        colnames(calib) <- c("Doc.id","text")
         print(input$file$name)
         return(calib)} else if(file_ext(input$file$datapath)=="pdf")
       {          
@@ -56,10 +56,9 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
         # Combine text from all pages while preserving line breaks
         pdf_text1 <- paste(pdf_text1, collapse = "\n\n")
         pdf_text2 <- str_split(pdf_text1, pattern = "\n\n")
-        #Document = pdf_text2
-          #Doc.id <- seq(1, length(pdf_text2[[1]]))
-          calib <- data.frame(text = pdf_text2[[1]])
-          #colnames(calib) <- c("Doc.id","Documents")
+          Doc.id <- seq(1, length(pdf_text2[[1]]))
+          calib <- data.frame(docID = Doc.id, text = pdf_text2[[1]])
+          colnames(calib) <- c("Doc.id","Documents")
           print(input$file$name)
           return(calib)} else
       {
