@@ -59,8 +59,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
           Doc.id <- seq(1, length(pdf_text2[[1]]))
           calib <- data.frame(Doc.id = Doc.id, text = pdf_text2[[1]])
           colnames(calib) <- c("Doc.id","text")
-          #print(input$file$name)
-          #print(glimpse(calib)) # deleteable
+          print(input$file$name)
           return(calib)  } else
       {
       Document = read.csv(input$file$datapath ,header=TRUE, sep = ",", stringsAsFactors = F)
@@ -294,7 +293,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
   #----------------------------------------------------#
   
   sentiments.index =  eventReactive(input$apply,{
-    textdf = data.frame(text=dataset1()[input$index,]) |> as.data.frame() |> 
+    textdf = data.frame(text=dataset1()[[input$index]]) |> as.data.frame() |> 
           unnest_tokens(text, text, token = "sentences")
   
     if (input$lexicon == "nrc") {
@@ -421,7 +420,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
     if (is.null(input$file)|input$apply==0) {return(NULL)} 
     else {
       tb = sentiments.index()
-      tx = dataset1()[input$index,] |> as.data.frame() |>
+      tx = dataset1()[[input$index]] |> as.data.frame() |>
           unnest_tokens(text, text, token = "sentences")      
       y1 = data.frame(tx, Sentence.No = 1:nrow(tx))    
       test = merge(tb, y1, by.x ="Sentence.No", by.y= "Sentence.No", all.y=T)
