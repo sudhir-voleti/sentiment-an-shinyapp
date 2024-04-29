@@ -150,9 +150,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
       return(sent)
     })
   
-
   sentiments_cdf =  eventReactive(input$apply,{
-    
     if (input$lexicon %in% c('userdefined',"AFINN")){
       sentiments_cdf = sent.df() |>
         group_by(index = linenumber %/% 1) |>
@@ -175,7 +173,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
     if (input$lexicon %in% c("AFINN","userdefined")) {
       out = list(sentiments_cdf())
     } else if (input$lexicon == "nrc") {
-      out = list(dat3,dat4,dat1)
+      out = list(dat3,dat4) # ,dat1
     } else if (input$lexicon == "bing") {
       out = list(dat1)
     } else if (input$lexicon == "loughran") {
@@ -291,7 +289,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
   #----------------------------------------------------#
   
   sentiments.index =  eventReactive(input$apply,{
-    textdf = dataset1()[input$index,1] |> as.character() |> as.data.frame() |> 
+    textdf = tbl_df(dataset1()[input$index,1]) |> #as.character() |> as.data.frame() |> 
           unnest_tokens(text, text, token = "sentences")
   
     if (input$lexicon == "nrc") {
