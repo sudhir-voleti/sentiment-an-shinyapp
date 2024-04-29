@@ -11,6 +11,7 @@ library("DT")
 library("reshape2")
 library("wordcloud")
 library("plotly")
+library("pdftools"); library("tools")
 
 #--------------------------------------------#
 
