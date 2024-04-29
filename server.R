@@ -58,9 +58,9 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
         pdf_text2 <- str_split(pdf_text1, pattern = "\n\n")
           Doc.id <- seq(1, length(pdf_text2[[1]]))
           calib <- data.frame(Doc.id = Doc.id, text = pdf_text2[[1]])
-          colnames(calib) <- c("Doc.id","Documents")
-          print(input$file$name)
-          print(glimpse(calib)) # deleteable
+          colnames(calib) <- c("Doc.id","text")
+          #print(input$file$name)
+          #print(glimpse(calib)) # deleteable
           return(calib)  } else
       {
       Document = read.csv(input$file$datapath ,header=TRUE, sep = ",", stringsAsFactors = F)
@@ -93,7 +93,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
 
   dataset1 <- reactive({ 
     y1 <- match(input$y, cols())
-    print("y1 value is ", as.numeric(y1)) 
+    #print("y1 value is ", as.numeric(y1)) 
     df0 <- data.frame(text = dataset()[,y1])
     return(df0) })
 
@@ -294,7 +294,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
   #----------------------------------------------------#
   
   sentiments.index =  eventReactive(input$apply,{
-    textdf = data.frame(text=dataset1()[input$index]) |> # as.character() |> as.data.frame() |> 
+    textdf = data.frame(text=dataset1()[input$index,1]) |> # as.character() |> as.data.frame() |> 
           unnest_tokens(text, text, token = "sentences")
   
     if (input$lexicon == "nrc") {
@@ -417,22 +417,21 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
     datatable(t1(), rownames = F)
   }, options = list(lengthMenu = c(5, 30, 50), pageLength = 30))
 
-#  t2 = reactive({
-#    if (is.null(input$file)|input$apply==0) {return(NULL)} 
-#    else {
-#      tb = sentiments.index()
-#      tx = dataset1()[input$index, 1] |> as.data.frame() |>
-#          unnest_tokens(text, text, token = "sentences")      
-#      y1 = data.frame(tx, Sentence.No = 1:nrow(tx))    
-#      #test = merge(tb, y1, by.x ="Sentence.No", by.y= "Sentence.No", all.y=T)
-#      #return(test)
-#      return(y1)    
-#    }    
-#  })
+  t2 = reactive({
+    if (is.null(input$file)|input$apply==0) {return(NULL)} 
+    else {
+      tb = sentiments.index()
+      tx = dataset1()[input$index, 1] |> as.data.frame() |>
+          unnest_tokens(text, text, token = "sentences")      
+      y1 = data.frame(tx, Sentence.No = 1:nrow(tx))    
+      test = merge(tb, y1, by.x ="Sentence.No", by.y= "Sentence.No", all.y=T)
+     return(test)
+    }    
+  })
   
   output$table2 <- renderDataTable({
-    # datatable(t2(), rownames = F)
-    datatable(sentiments.index(), rownames = F)
+    datatable(t2(), rownames = F)
+    #datatable(sentiments.index(), rownames = F)
   }, options = list(lengthMenu = c(5, 30, 50), pageLength = 30))
   
   #----------------------------------------------------#
