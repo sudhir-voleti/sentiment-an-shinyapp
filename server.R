@@ -420,7 +420,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
     if (is.null(input$file)|input$apply==0) {return(NULL)} 
     else {
       tb = sentiments.index()
-      textdf = dataset1()
+      textdf = dataset1()[input$index,1]
       tx = textdf |> unnest_tokens(text, text, token = "sentences")      
       y1 = data.frame(tx, Sentence.No = 1:nrow(tx))    
       test = merge(tb, y1, by.x ="Sentence.No", by.y= "Sentence.No", all.y=T)
