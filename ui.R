@@ -87,10 +87,10 @@ shinyUI(fluidPage(
                          verbatimTextOutput("up_size"),
 			 
                           h3("Sentence level summary"),
-                             htmlOutput("text"),
+                             htmlOutput("text01"),
                              hr(),
                              h3("Token level summary"),
-                             htmlOutput("text2"),
+                             htmlOutput("text02"),
                              hr(),
                          h3("Sample of uploaded datasest"),
                          DT::dataTableOutput("samp_data")
