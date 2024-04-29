@@ -61,7 +61,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
           colnames(calib) <- c("Doc.id","Documents")
           print(input$file$name)
           print(glimpse(calib)) # deleteable
-          return(calib)} else
+          return(calib)  } else
       {
       Document = read.csv(input$file$datapath ,header=TRUE, sep = ",", stringsAsFactors = F)
       Document[,1] <- str_to_title(Document[,1])
@@ -81,7 +81,8 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
       y_col <- cols()[-x]    
       return(y_col)     })
   
-  output$id_var <- renderUI({ print(cols())
+  output$id_var <- renderUI({ 
+    print(cols())
     selectInput("x","Select ID Column",choices = cols())   })
   
   output$doc_var <- renderUI({ selectInput("y","Select Text Column",choices = y_col())   })
@@ -93,7 +94,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
     y1 <- match(input$y, cols())
     print("y1 value is ",y1) 
     df0 <- data_frame(text = dataset()[,y1])
-    print("df0 is ", glimpse(df0))
+    print("df0 is ", head(df0))
     return(df0) })
 
    output$up_size <- renderPrint({
