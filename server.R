@@ -32,6 +32,8 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
     userdictionary = read.csv(input$user_dict$datapath,header=TRUE, sep = ",", stringsAsFactors = F)
       })
 
+## +++++++++++++
+  
   dataset <- reactive({
         if (is.null(input$file)) {return(NULL)}
     else {
@@ -57,8 +59,8 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
         pdf_text1 <- paste(pdf_text1, collapse = "\n\n")
         pdf_text2 <- str_split(pdf_text1, pattern = "\n\n")
         #Document = pdf_text2
-          Doc.id <- seq(1, length(pdf_text2[[1]]))
-          calib <- data.frame(text = pdf_text2)
+          #Doc.id <- seq(1, length(pdf_text2[[1]]))
+          calib <- data.frame(text = pdf_text2[[1]])
           #colnames(calib) <- c("Doc.id","Documents")
           print(input$file$name)
           return(calib)} else
@@ -75,33 +77,49 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
     }
   })
 
+  cols <- reactive({colnames(dataset())})
+  y_col <- reactive({
+      x <- match(input$x, cols())
+      y_col <- cols()[-x]
+      return(y_col)     })
+  
+  output$id_var <- renderUI({ print(cols())
+    selectInput("x","Select ID Column",choices = cols())   })
+  
+  output$doc_var <- renderUI({ selectInput("y","Select Text Column",choices = y_col())   })
+ 
+ output$up_size <- renderPrint({ size <- dim(dataset())
+    paste0("Dimensions of uploaded data: ",size[1]," (rows) X ", size[2]," (Columns)") })
+
+  dataset1 <- reactive({ 
+    df0 <- data.frame(text = dataset()[,input$y]) })
+
+  ## +++++
     stopw = reactive({
         # input = list(stopw = "have had samsung")
-        stopwords = data_frame(text = input$stopw) %>%
-        mutate(linenumber = row_number()) %>%
-        ungroup() %>%
+        stopwords = data_frame(text = input$stopw) |>
+        mutate(linenumber = row_number()) |>
+        ungroup() |>
         unnest_tokens(word, text)
         stopwords
     })
   
     sent.df = reactive({
-      textdf = dataset()
+      textdf = dataset1()
       
       if (input$lexicon == 'userdefined'){
-          sent = textdf %>%
-          mutate(linenumber = row_number()) %>%
-          ungroup() %>%
-          unnest_tokens(word, text) %>%
-          # anti_join(stopwords, by="word") %>%
-          anti_join(stopw(), by="word") %>%
-          # inner_join(tbl_df(userdictionary)) 
+          sent = textdf |>
+          mutate(linenumber = row_number()) |>
+          ungroup() |> 
+          unnest_tokens(word, text) |>
+          anti_join(stopw(), by="word") |>
           inner_join(tbl_df(userdictionary()))
         }    else {
-        sent = textdf %>%
-          mutate(linenumber = row_number()) %>%
-          ungroup() %>%
-          unnest_tokens(word, text) %>% 
-          anti_join(stopw(), by="word") %>% 
+        sent = textdf |>
+          mutate(linenumber = row_number()) |>
+          ungroup() |>
+          unnest_tokens(word, text) |> 
+          anti_join(stopw(), by="word") |> 
           inner_join(lexicon_data%>%filter(lexicon==input$lexicon)) 
         }
       return(sent)
@@ -109,33 +127,19 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
   
 
   sentiments_cdf =  reactive ({
-    # return(tidy.sentiment(dataset(), lexicon = input$lexicon))
     
     if (input$lexicon %in% c('userdefined',"AFINN")){
-      sentiments_cdf = sent.df() %>%
-        # sentiments = sent %>%
-        group_by(index = linenumber %/% 1) %>% 
-        summarise(sentiment = sum(score)) %>% 
-        mutate(method = input$lexicon)
-      
-      
+      sentiments_cdf = sent.df() |>
+        group_by(index = linenumber %/% 1) |>
+        summarise(sentiment = sum(score)) |> 
+        mutate(method = input$lexicon)          
     }  else {
-      sentiments_cdf = sent.df()[,-c(4,5)] %>%
-        count(sentiment, index = linenumber %/% 1, sort = TRUE) %>%
-        mutate(method = input$lexicon)
-      
-    }
-    
-    return(sentiments_cdf)
-    
-    
-  })
+      sentiments_cdf = sent.df()[,-c(4,5)] |>
+        count(sentiment, index = linenumber %/% 1, sort = TRUE) |>
+        mutate(method = input$lexicon)      
+    }    
+    return(sentiments_cdf)   }) # reactive ends
 
-  # output$chk = renderPrint({
-  #   sentiments_cdf()
-  # })
-  
-  
   dat = reactive({
     
     dat1 = sentiments_cdf()[(sentiments_cdf()$sentiment %in% c("positive", "negative") ),]
@@ -152,8 +156,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
     } else if (input$lexicon == "loughran") {
       out = list(dat2,dat1)
     }
-    return(out)
-  })
+    return(out)  }) # dat reactive
   
     output$sent.plots <- renderUI({
     if (is.null(input$file)) {return(NULL)}
@@ -237,11 +240,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
     }
     }
   })
-  
 
-  
-  
-  
   output$count <- renderDataTable({
     
     if (is.null(input$file)) {return(NULL)}
@@ -250,19 +249,15 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
     # textdf = dataset()
     
     if (input$lexicon %in% c("nrc","bing","loughran")) {
-        wc = sent.df() %>%
-        count(word, sentiment, sort = TRUE) %>%
+        wc = sent.df() |>
+        count(word, sentiment, sort = TRUE) |>
         acast(word ~ sentiment, value.var = "n", fill = 0) 
-        #   %>% comparison.cloud( #colors = c("#F8766D", "#00BFC4"),
-        #   max.words = 300)
       
     } else {
       
-        wc = sent.df() %>%
-        count(word, score, sort = TRUE) %>%
+        wc = sent.df() |>
+        count(word, score, sort = TRUE) |>
         acast(word ~ score, value.var = "n", fill = 0) 
-        # %>% comparison.cloud( #colors = c("#F8766D", "#00BFC4"),
-        #   max.words = 100)
     }
     
     wc1 = data.frame(wc)
@@ -281,63 +276,63 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
   #----------------------------------------------------#
   
   sentiments.index =  reactive ({
-    # return(tidy.sentiment(dataset(), lexicon = input$lexicon))
-    textdf = dataset()[input$index,] %>% unnest_tokens(text, text, token = "sentences")
+    textdf = dataset1()[input$index,] |> unnest_tokens(text, text, token = "sentences")
   
     if (input$lexicon == "nrc") {
-        sent = textdf %>%
-        mutate(linenumber = row_number()) %>%
-        ungroup() %>%
-        unnest_tokens(word, text) %>%
-        anti_join(stopw(), by="word") %>%
-        inner_join(lexicon_data%>%filter(lexicon=='nrc')) %>% #----changes required--#
-        count(sentiment, Sentence.No = linenumber %/% 1, sort = TRUE) %>%
+        sent = textdf |>
+        mutate(linenumber = row_number()) |>
+        ungroup() |>
+        unnest_tokens(word, text) |>
+        anti_join(stopw(), by="word") |>
+        inner_join(lexicon_data |> 
+        filter(lexicon=='nrc')) |> 
+        count(sentiment, Sentence.No = linenumber %/% 1, sort = TRUE) |>
         mutate(method = "nrc")
     }
     
     if (input$lexicon == "bing") {
-      sent = textdf %>%
-        mutate(linenumber = row_number()) %>%
-        ungroup() %>%
-        unnest_tokens(word, text) %>%
-        anti_join(stopw(), by="word") %>%
-        inner_join(lexicon_data%>%filter(lexicon=='bing')) %>% #----changes required--#
-        count(sentiment, Sentence.No = linenumber %/% 1, sort = TRUE) %>%
+      sent = textdf |>
+        mutate(linenumber = row_number()) |>
+        ungroup() |>
+        unnest_tokens(word, text) |>
+        anti_join(stopw(), by="word") |>
+        inner_join(lexicon_data%>%filter(lexicon=='bing')) |> #----changes required--#
+        count(sentiment, Sentence.No = linenumber %/% 1, sort = TRUE) |>
         mutate(method = "bing")
     }
     
     if (input$lexicon == "AFINN") {
-      sent = textdf %>%
-        mutate(linenumber = row_number()) %>%
-        ungroup() %>%
-        unnest_tokens(word, text) %>%
-        anti_join(stopw(), by="word") %>%
-        inner_join(lexicon_data%>%filter(lexicon=='AFINN')) %>% #----changes required--#
-        group_by(Sentence.No = linenumber %/% 1) %>% 
-        summarise(sentiment = sum(score)) %>% 
+      sent = textdf |>
+        mutate(linenumber = row_number()) |>
+        ungroup() |>
+        unnest_tokens(word, text) |>
+        anti_join(stopw(), by="word") |>
+        inner_join(lexicon_data%>%filter(lexicon=='AFINN')) |>
+        group_by(Sentence.No = linenumber %/% 1) |> 
+        summarise(sentiment = sum(score)) |>
         mutate(method = "afinn")
     }
     
     if (input$lexicon == "loughran") {
-      sent = textdf %>%
-        mutate(linenumber = row_number()) %>%
-        ungroup() %>%
-        unnest_tokens(word, text) %>%
-        anti_join(stopw(), by="word") %>%
-        inner_join(lexicon_data%>%filter(lexicon=='loughran')) %>% #----changes required--#
-        count(sentiment, Sentence.No = linenumber %/% 1, sort = TRUE) %>%
+      sent = textdf |>
+        mutate(linenumber = row_number()) |>
+        ungroup() |>
+        unnest_tokens(word, text) |>
+        anti_join(stopw(), by="word") |>
+        inner_join(lexicon_data%>%filter(lexicon=='loughran')) |>
+        count(sentiment, Sentence.No = linenumber %/% 1, sort = TRUE) |>
         mutate(method = "loughran")
     }
     
     if (input$lexicon == "userdefined") {
-        sent = textdf %>%
-        mutate(linenumber = row_number()) %>%
-        ungroup() %>%
-        unnest_tokens(word, text) %>%
-        anti_join(stopw(), by="word") %>%
-        inner_join(tbl_df(userdictionary())) %>%
-        group_by(Sentence.No = linenumber %/% 1) %>% 
-        summarise(sentiment = sum(score)) %>% 
+        sent = textdf |>
+        mutate(linenumber = row_number()) |>
+        ungroup() |>
+        unnest_tokens(word, text) |>
+        anti_join(stopw(), by="word") |>
+        inner_join(tbl_df(userdictionary())) |>
+        group_by(Sentence.No = linenumber %/% 1) |>
+        summarise(sentiment = sum(score)) |>
         mutate(method = "userdefined")
     }
     
@@ -345,45 +340,27 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
     
   })
   
-
-  # output$sent.plot.index <- renderPlot ({
-  # 
-  #   if (input$lexicon != "afinn") {
-  #     ggplot(sentiments.index(),
-  #            aes(index, n, fill = sentiment)) +     # index is x col, n is y col. fill=?
-  #       geom_bar(alpha = 0.8, stat = "identity", show.legend = FALSE) +     # stat=?
-  #       facet_wrap(~sentiment, ncol = 2, scales = "free_x")     # so cool.
-  #   }   else  {
-  #     ggplot(sentiments.index(),
-  #            aes(index, sentiment)) +     # index is x col, n is y col. fill=?
-  #       geom_bar(alpha = 1, stat = "identity", position = "identity", show.legend = FALSE)      # stat=?
-  #   }
-  # 
-  # })
-  
   t1 = reactive({
     if (is.null(input$file)) {return(NULL)}
     else {
       
-      textdf = dataset()
+      textdf = dataset1()
       
       if (input$lexicon == 'userdefined'){
-          worddf = textdf %>%
-          mutate(linenumber = row_number()) %>%
-          ungroup() %>%
-          unnest_tokens(word, text) %>%
-          # anti_join(stopwords, by="word") %>%
-          anti_join(stopw(), by="word") %>%
-          # inner_join(tbl_df(userdictionary)) 
-          inner_join(tbl_df(userdictionary())) %>% 
+          worddf = textdf |>
+          mutate(linenumber = row_number()) |>
+          ungroup() |>
+          unnest_tokens(word, text) |>
+          anti_join(stopw(), by="word") |>
+          inner_join(tbl_df(userdictionary())) |>
           unique()
       }    else {
-          worddf = textdf %>%
-          mutate(linenumber = row_number()) %>%
-          ungroup() %>%
-          unnest_tokens(word, text) %>% 
-          anti_join(stopw(), by="word") %>% 
-          inner_join(lexicon_data%>%filter(lexicon==input$lexicon)) %>% 
+          worddf = textdf |>
+          mutate(linenumber = row_number()) |>
+          ungroup() |>
+          unnest_tokens(word, text) |>
+          anti_join(stopw(), by="word") |>
+          inner_join(lexicon_data%>%filter(lexicon==input$lexicon)) |>
           unique()
       }
       
@@ -434,7 +411,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
     else {
       
       tb = sentiments.index()
-      tx = dataset()[input$index,] %>% unnest_tokens(text, text, token = "sentences")
+      tx = dataset1()[input$index,] |> unnest_tokens(text, text, token = "sentences")
       
       y1 = data.frame(tx, Sentence.No= 1:nrow(tx))
       
