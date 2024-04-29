@@ -101,7 +101,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
     
   output$text01 <- renderUI({
         req(input$file$datapath)
-        str1 <- paste("Total no of documents:", nrow(dataset1()))
+        str1 <- paste("Total no of documents:", nrow(dataset()))
         str2 <- paste("Range of sentences per document: ",min(text_summ()$Sentences),"-",max(text_summ()$Sentences))
         #str3 <- paste("Maximum number of sentence: ",)
         str4 <- paste("Average number of sentences per document: ",round(mean(text_summ()$Sentences),2))
@@ -121,7 +121,6 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
   
   ## +++++
     stopw = eventReactive(input$apply,{
-        # input = list(stopw = "have had samsung")
         stopwords = data_frame(text = input$stopw) |>
         mutate(linenumber = row_number()) |>
         ungroup() |>
@@ -130,7 +129,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
     })
   
     sent.df = eventReactive(input$apply,{
-      textdf = dataset1()
+      textdf = dataset()[,input$y]
       
       if (input$lexicon == 'userdefined'){
           sent = textdf |>
@@ -289,7 +288,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
   #----------------------------------------------------#
   
   sentiments.index =  eventReactive(input$apply,{
-    textdf = as_tibble(dataset1()$text[input$index]) |> as.character() |> as.data.frame() |> 
+    textdf = as_tibble(dataset()[input$index, input$y]) |> as.character() |> as.data.frame() |> 
           unnest_tokens(text, text, token = "sentences")
   
     if (input$lexicon == "nrc") {
@@ -416,12 +415,11 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
     if (is.null(input$file)|input$apply==0) {return(NULL)} 
     else {
       tb = sentiments.index()
-      tx = dataset1()$text[input$index] |> as.character() |> as.data.frame() |>
+      tx = dataset()[input$index, input$y] |> as.character() |> as.data.frame() |>
           unnest_tokens(text, text, token = "sentences")      
       y1 = data.frame(tx, Sentence.No = 1:nrow(tx))    
       test = merge(tb, y1, by.x ="Sentence.No", by.y= "Sentence.No", all.y=T)
-      return(test)
-      #return(y1)
+      return(test)     
     }    
   })
   
