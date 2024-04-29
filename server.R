@@ -82,7 +82,8 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
       return(y_col)     })
   
   output$id_var <- renderUI({ 
-    print(cols())
+    cols1 = cols()
+    print(cols1)
     selectInput("x","Select ID Column",choices = cols())   })
   
   output$doc_var <- renderUI({ selectInput("y","Select Text Column",choices = y_col())   })
@@ -92,9 +93,8 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
 
   dataset1 <- reactive({ 
     y1 <- match(input$y, cols())
-    print("y1 value is ",y1) 
-    df0 <- data_frame(text = dataset()[,y1])
-    print("df0 is ", head(df0))
+    print("y1 value is ", as.numeric(y1)) 
+    df0 <- data.frame(text = dataset()[,y1])
     return(df0) })
 
    output$up_size <- renderPrint({
