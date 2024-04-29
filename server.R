@@ -89,7 +89,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
     paste0("Dimensions of uploaded data: ",size[1]," (rows) X ", size[2]," (Columns)") })
 
   dataset1 <- reactive({ 
-    df0 <- data.frame(text = dataset()[,input$y]) })
+    df0 <- data.frame(text = dataset()[,input$y]); return(df0) })
 
    output$up_size <- renderPrint({
     size <- dim(dataset())
@@ -291,7 +291,8 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
   #----------------------------------------------------#
   
   sentiments.index =  eventReactive(input$apply,{
-    textdf = dataset1()[input$index,] |> unnest_tokens(text, text, token = "sentences")
+    textdf = dataset1()[input$index,] |> 
+          unnest_tokens(text, text, token = "sentences")
   
     if (input$lexicon == "nrc") {
         sent = textdf |>
@@ -311,7 +312,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
         ungroup() |>
         unnest_tokens(word, text) |>
         anti_join(stopw(), by="word") |>
-        inner_join(lexicon_data%>%filter(lexicon=='bing')) |> #----changes required--#
+        inner_join(lexicon_data |> filter(lexicon=='bing')) |> 
         count(sentiment, Sentence.No = linenumber %/% 1, sort = TRUE) |>
         mutate(method = "bing")
     }
@@ -322,7 +323,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
         ungroup() |>
         unnest_tokens(word, text) |>
         anti_join(stopw(), by="word") |>
-        inner_join(lexicon_data%>%filter(lexicon=='AFINN')) |>
+        inner_join(lexicon_data |> filter(lexicon=='AFINN')) |>
         group_by(Sentence.No = linenumber %/% 1) |> 
         summarise(sentiment = sum(score)) |>
         mutate(method = "afinn")
@@ -419,8 +420,8 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
       
       tb = sentiments.index()
       tx = dataset1()[input$index,] |> unnest_tokens(text, text, token = "sentences")      
-      y1 = data.frame(tx, Sentence.No= 1:nrow(tx))    
-      test = merge(tb,y1 ,by.x ="Sentence.No", by.y= "Sentence.No", all.y=T)
+      y1 = data.frame(tx, Sentence.No = 1:nrow(tx))    
+      test = merge(tb, y1, by.x ="Sentence.No", by.y= "Sentence.No", all.y=T)
       return(test)
     }    
   })
