@@ -288,7 +288,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
   #----------------------------------------------------#
   
   sentiments.index =  eventReactive(input$apply,{
-    textdf = as_tibble(dataset1()[input$index]) #|> as.character() |> as.data.frame() |> 
+    textdf = as_tibble(dataset1()[input$index]) |> # as.character() |> as.data.frame() |> 
           unnest_tokens(text, text, token = "sentences")
   
     if (input$lexicon == "nrc") {
