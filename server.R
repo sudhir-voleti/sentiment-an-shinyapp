@@ -415,9 +415,8 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
   }, options = list(lengthMenu = c(5, 30, 50), pageLength = 30))
 
   t2 = reactive({
-    if (is.null(input$file)|input$apply==0) {return(NULL)}
+    if (is.null(input$file)|input$apply==0) {return(NULL)} 
     else {
-      
       tb = sentiments.index()
       tx = dataset1()[input$index,1] |> as.character() |> as.data.frame() |>
           unnest_tokens(text, text, token = "sentences")      
@@ -428,7 +427,8 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
   })
   
   output$table2 <- renderDataTable({
-    datatable(t2(), rownames = F)
+    #datatable(t2(), rownames = F)
+    datatable(sentiments.index(), rownames = T)
   }, options = list(lengthMenu = c(5, 30, 50), pageLength = 30))
   
   #----------------------------------------------------#
