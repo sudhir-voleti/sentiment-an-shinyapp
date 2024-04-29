@@ -167,10 +167,10 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
 
   dat = reactive({
     
-    dat1 = sentiments_cdf()[(sentiments_cdf()$sentiment %in% c("positive", "negative") ),]
+    dat1 = sentiments_cdf()[(sentiments_cdf()$sentiment %in% c("positive","negative") ),]
     dat2 = sentiments_cdf()[(sentiments_cdf()$sentiment %in% c("uncertainty","litigious","constraining","superfluous") ),]
-    dat3 = sentiments_cdf()[(sentiments_cdf()$sentiment %in% c("joy", "trust","surprise","anticipation") ),]
-    dat4 = sentiments_cdf()[(sentiments_cdf()$sentiment %in% c("anger", "disgust","fear", "sadness") ),]
+    dat3 = sentiments_cdf()[(sentiments_cdf()$sentiment %in% c("joy","trust","surprise","anticipation") ),]
+    dat4 = sentiments_cdf()[(sentiments_cdf()$sentiment %in% c("anger","disgust","fear", "sadness") ),]
     
     if (input$lexicon %in% c("AFINN","userdefined")) {
       out = list(sentiments_cdf())
@@ -373,7 +373,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
           ungroup() |>
           unnest_tokens(word, text) |>
           anti_join(stopw(), by="word") |>
-          inner_join(lexicon_data%>%filter(lexicon==input$lexicon)) |>
+          inner_join(lexicon_data |> filter(lexicon==input$lexicon)) |>
           unique()
       }
       
@@ -402,12 +402,9 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
             dft = data.frame(index = i, sentiment = s, words = t)
             wdf = rbind(wdf, dft)
           }
-        }
-        
+        }        
       }
-      
       wdf1 = wdf[wdf$index == input$index,]
-      # test = merge(tb,wdf ,by.x ="index", by.y= "index", all.y=T)
       return(wdf1)
     } # else ends    
   })
@@ -415,9 +412,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
   output$table <- renderDataTable({
     datatable(t1(), rownames = F)#
   }, options = list(lengthMenu = c(5, 30, 50), pageLength = 30))
-  
-  
-  
+
   t2 = reactive({
     if (is.null(input$file)|input$apply==0) {return(NULL)}
     else {
