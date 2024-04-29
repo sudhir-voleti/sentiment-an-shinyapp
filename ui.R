@@ -24,6 +24,9 @@ shinyUI(fluidPage(
   # Input in sidepanel:
   sidebarPanel(
     fileInput("file", "Upload file: TXT, CSV or PDF"),  
+    uiOutput('id_var'),
+    uiOutput("doc_var"),
+    textInput("stopw", ("Enter stop words separated by comma(,)"), value = "will,can"),
     
     selectInput("lexicon", "Sentiment Dictionary",
     c("AFINN","bing","nrc","loughran","User Defined"="userdefined"), selected = "AFINN"),
@@ -33,7 +36,8 @@ shinyUI(fluidPage(
     
     numericInput("index", "Document Index", 1)
     # submitButton(text = "Apply Changes", icon("refresh"))
-    
+
+   actionButton(inputId = "apply",label = "Apply Changes", icon("refresh"))    
   ),
   
   # Main Panel:
