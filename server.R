@@ -88,8 +88,8 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
  output$up_size <- renderPrint({ size <- dim(dataset())
     paste0("Dimensions of uploaded data: ",size[1]," (rows) X ", size[2]," (Columns)") })
 
-  dataset1 <- reactive({ 
-    df0 <- data.frame(text = dataset()[,input$y]); return(df0) })
+  dataset1 <- reactive({ y1 <- match(input$y, cols())
+    df0 <- data.frame(text = dataset()[,y1]); return(df0) })
 
    output$up_size <- renderPrint({
     size <- dim(dataset())
