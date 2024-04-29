@@ -20,10 +20,8 @@ shinyServer(function(input, output,session) {
   
 lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons from app folder
   
-  
   output$dictionary <- renderUI({
-    if (input$lexicon != 'userdefined') return(NULL)
-    
+    if (input$lexicon != 'userdefined') return(NULL)    
     fileInput("user_dict", "Upload User-Defined Dictionary")
       })
   
@@ -95,7 +93,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
     df0 <- data.frame(text = dataset()[,input$y]) })
 
   ## +++++
-    stopw = reactive({
+    stopw = eventReactive(input$apply,{
         # input = list(stopw = "have had samsung")
         stopwords = data_frame(text = input$stopw) |>
         mutate(linenumber = row_number()) |>
@@ -104,7 +102,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
         stopwords
     })
   
-    sent.df = reactive({
+    sent.df = eventReactive(input$apply,{
       textdf = dataset1()
       
       if (input$lexicon == 'userdefined'){
@@ -126,7 +124,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
     })
   
 
-  sentiments_cdf =  reactive ({
+  sentiments_cdf =  eventReactive(input$apply,{
     
     if (input$lexicon %in% c('userdefined',"AFINN")){
       sentiments_cdf = sent.df() |>
@@ -159,7 +157,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
     return(out)  }) # dat reactive
   
     output$sent.plots <- renderUI({
-    if (is.null(input$file)) {return(NULL)}
+    if (is.null(input$file)|input$apply==0) {return(NULL)}
     else {
       
       if (input$lexicon %in% c("AFINN","userdefined")) {
@@ -173,19 +171,15 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
       }
         plot_output_list <- lapply(1:k, function(i) {
         plotname <- paste("plot", i, sep="")
-        plotlyOutput(plotname, height = 700, width = 700)
-        
-        # plotOutput(plotname, height = 700, width = 700)
-      })
+        plotlyOutput(plotname, height = 700, width = 700)  }) # lapply ends
+      
       # Convert the list to a tagList - this is necessary for the list of items
       # to display properly.
       do.call(tagList, plot_output_list)
     }
   })
   
-  
-  max_plots = 3
-  
+  max_plots = 3  
   for (i in 1:max_plots) {
     # Need local so that each item gets its own number. Without it, the value
     # of i in the renderPlot() will be the same across all instances, because
@@ -211,8 +205,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
         })
       })
   }
-  
-  
+    
   output$event <- renderPrint({
     d <- event_data("plotly_hover")
     if (is.null(d)) "Hover on a point!" else d
@@ -220,34 +213,29 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
   
   
   output$word.cloud <- renderPlot({
-    
-    if (is.null(input$file)) {return(NULL)}
+    if (is.null(input$file)|input$apply==0) {return(NULL)}
     else {
     
     if (input$lexicon  %in% c("nrc","bing","loughran")) {
-      sent.df() %>%
-      count(word, sentiment, sort = TRUE) %>%
-      acast(word ~ sentiment, value.var = "n", fill = 0) %>%
+      sent.df() |>
+      count(word, sentiment, sort = TRUE) |>
+      acast(word ~ sentiment, value.var = "n", fill = 0) |>
        comparison.cloud( #colors = c("#F8766D", "#00BFC4"),
                        max.words = 300)
     } else {
       
-        sent.df() %>%
-        count(word, score, sort = TRUE) %>%
-        acast(word ~ score, value.var = "n", fill = 0) %>%
+        sent.df() |>
+        count(word, score, sort = TRUE) |>
+        acast(word ~ score, value.var = "n", fill = 0) |>
         comparison.cloud( #colors = c("#F8766D", "#00BFC4"),
         max.words = 100)
     }
     }
   })
 
-  output$count <- renderDataTable({
-    
-    if (is.null(input$file)) {return(NULL)}
-    else {
-      
-    # textdf = dataset()
-    
+  output$count <- renderDataTable({    
+    if (is.null(input$file)|input$apply==0) {return(NULL)}
+    else {      
     if (input$lexicon %in% c("nrc","bing","loughran")) {
         wc = sent.df() |>
         count(word, sentiment, sort = TRUE) |>
@@ -275,7 +263,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
   
   #----------------------------------------------------#
   
-  sentiments.index =  reactive ({
+  sentiments.index =  eventReactive(input$apply,{
     textdf = dataset1()[input$index,] |> unnest_tokens(text, text, token = "sentences")
   
     if (input$lexicon == "nrc") {
@@ -334,14 +322,12 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
         group_by(Sentence.No = linenumber %/% 1) |>
         summarise(sentiment = sum(score)) |>
         mutate(method = "userdefined")
-    }
-    
-    return(sent)
-    
+    }    
+    return(sent)  
   })
   
   t1 = reactive({
-    if (is.null(input$file)) {return(NULL)}
+    if (is.null(input$file)|input$apply==0) {return(NULL)}
     else {
       
       textdf = dataset1()
@@ -396,8 +382,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
       wdf1 = wdf[wdf$index == input$index,]
       # test = merge(tb,wdf ,by.x ="index", by.y= "index", all.y=T)
       return(wdf1)
-    }
-    
+    } # else ends    
   })
   
   output$table <- renderDataTable({
@@ -407,26 +392,21 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
   
   
   t2 = reactive({
-    if (is.null(input$file)) {return(NULL)}
+    if (is.null(input$file)|input$apply==0) {return(NULL)}
     else {
       
       tb = sentiments.index()
-      tx = dataset1()[input$index,] |> unnest_tokens(text, text, token = "sentences")
-      
-      y1 = data.frame(tx, Sentence.No= 1:nrow(tx))
-      
+      tx = dataset1()[input$index,] |> unnest_tokens(text, text, token = "sentences")      
+      y1 = data.frame(tx, Sentence.No= 1:nrow(tx))    
       test = merge(tb,y1 ,by.x ="Sentence.No", by.y= "Sentence.No", all.y=T)
       return(test)
-    }
-    
+    }    
   })
   
   output$table2 <- renderDataTable({
     datatable(t2(), rownames = F)
   }, options = list(lengthMenu = c(5, 30, 50), pageLength = 30))
   
-  
-
   #----------------------------------------------------#
   
   output$downloadData1 <- downloadHandler(
