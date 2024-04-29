@@ -34,7 +34,7 @@ shinyUI(fluidPage(
     uiOutput("dictionary"),
     textInput("stopw", ("Enter stop words separated by comma(,)"), value = "will,can"),
     
-    numericInput("index", "Document Index", 1)
+    numericInput("index", "Document Index", 1),
     # submitButton(text = "Apply Changes", icon("refresh"))
 
    actionButton(inputId = "apply",label = "Apply Changes", icon("refresh"))    
