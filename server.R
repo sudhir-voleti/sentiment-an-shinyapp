@@ -424,7 +424,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
   })
   
   output$table2 <- renderDataTable({
-    t2() # datatable(t2(), rownames = F)
+    datatable(t2(), rownames = F)
   }, options = list(lengthMenu = c(5, 30, 50), pageLength = 30))
   
   #----------------------------------------------------#
