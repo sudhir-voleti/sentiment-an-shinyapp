@@ -91,6 +91,34 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
   dataset1 <- reactive({ 
     df0 <- data.frame(text = dataset()[,input$y]) })
 
+   output$up_size <- renderPrint({
+    size <- dim(dataset())
+    paste0("Dimensions of uploaded data: ",size[1]," (rows) X ", size[2]," (Columns)")
+  })
+
+  text_summ <- eventReactive(input$apply,{summary(quanteda::corpus(dataset()[,input$y]))})
+  quant_mod <- eventReactive(input$apply,{quanteda::corpus(dataset()[,input$y])})
+    
+  output$text01 <- renderUI({
+        req(input$file$datapath)
+        str1 <- paste("Total no of documents:", nrow(dataset1()))
+        str2 <- paste("Range of sentences per document: ",min(text_summ()$Sentences),"-",max(text_summ()$Sentences))
+        #str3 <- paste("Maximum number of sentence: ",)
+        str4 <- paste("Average number of sentences per document: ",round(mean(text_summ()$Sentences),2))
+        HTML(paste(str1, str2,str4, sep = '<br/>'))
+    })
+
+    output$text02 <- renderUI({
+        req(input$file$datapath)
+        str2 <- paste("Range of words per document: ",min(text_summ()$Tokens),'-',max(text_summ()$Tokens))
+        #str3 <- paste("range of words per document:: ",max(text_summ()$Tokens))
+        str4 <- paste("Average number of words: ",round(mean(text_summ()$Tokens),2))
+        HTML(paste(str2,str4, sep = '<br/>'))
+    })
+  output$samp_data <- DT::renderDataTable({
+    DT::datatable(dataset(), rownames = FALSE)
+  })
+  
   ## +++++
     stopw = eventReactive(input$apply,{
         # input = list(stopw = "have had samsung")
