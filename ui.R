@@ -81,6 +81,20 @@ shinyUI(fluidPage(
                          img(src = "example1.png")
                        
                          ),
+
+		tabPanel("Data Summary",
+                         h3("Uploaded data size"),
+                         verbatimTextOutput("up_size"),
+			 
+                          h3("Sentence level summary"),
+                             htmlOutput("text"),
+                             hr(),
+                             h3("Token level summary"),
+                             htmlOutput("text2"),
+                             hr(),
+                         h3("Sample of uploaded datasest"),
+                         DT::dataTableOutput("samp_data")
+                         ),                
                 
                 tabPanel("Sentiments - Plot",h4(),
                          # verbatimTextOutput('chk'),
