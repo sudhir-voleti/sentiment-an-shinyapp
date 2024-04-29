@@ -129,7 +129,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
     })
   
     sent.df = eventReactive(input$apply,{
-      textdf = dataset()[,input$y]
+      textdf = dataset1() #[,input$y]
       
       if (input$lexicon == 'userdefined'){
           sent = textdf |>
@@ -288,7 +288,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
   #----------------------------------------------------#
   
   sentiments.index =  eventReactive(input$apply,{
-    textdf = as_tibble(dataset()[input$index, input$y]) |> as.character() |> as.data.frame() |> 
+    textdf = as_tibble(dataset1()[input$index]) #|> as.character() |> as.data.frame() |> 
           unnest_tokens(text, text, token = "sentences")
   
     if (input$lexicon == "nrc") {
@@ -415,7 +415,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
     if (is.null(input$file)|input$apply==0) {return(NULL)} 
     else {
       tb = sentiments.index()
-      tx = dataset()[input$index, input$y] |> as.character() |> as.data.frame() |>
+      tx = dataset1()[input$index, 1] |> as.character() |> as.data.frame() |>
           unnest_tokens(text, text, token = "sentences")      
       y1 = data.frame(tx, Sentence.No = 1:nrow(tx))    
       test = merge(tb, y1, by.x ="Sentence.No", by.y= "Sentence.No", all.y=T)
