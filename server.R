@@ -471,4 +471,10 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
        writeLines(readLines("data/Bahubali_reviews.txt "), file)
     })  
 
+ output$downloadData6 <- downloadHandler(
+    filename = function() { "FGD_transcript_cosmetics_pdf" },
+    content = function(file) {
+       writeLines(readLines("data/Ad340-Focus_Group_Transcript_Make-Up.pdf"), file)
+    })  
+
 })
