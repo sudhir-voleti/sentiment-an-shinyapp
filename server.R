@@ -441,12 +441,11 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
   #----------------------------------------------------#
   
   output$downloadData1 <- downloadHandler(
-    filename = function() { "Nokia_Lumia_reviews.txt" },
+    filename = function() { "Uber_itunes_reviews.csv" },
     content = function(file) {
-      writeLines(readLines("data/Nokia_Lumia_reviews.txt"), file)
+      writeLines(readLines("data/uber_reviews_itune.csv"), file)
     }
   )
-  
   output$downloadData2 <- downloadHandler(
     filename = function() { "Sentiments Scores.csv" },
     content = function(file) {
