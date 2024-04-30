@@ -74,25 +74,26 @@ shinyUI(fluidPage(
                          
                          p("If plots are not working in \"Sentiments - Plot\" tab then please install latest version of ggplot2. You can install ggplot2 by command - install.packages(\"ggplot2\")", align = "justify"),
                          h4(p("Download Sample text file")),
-                         downloadButton('downloadData1', 'Download Nokia Lumia reviews txt file (works only in browser)'),br(),br(),
-                         downloadButton('downloadData4', 'Download One Plus reviews txt file (works only in browser)'),br(),br(),
-			 downloadButton('downloadData5', 'Download Bahubali reviews txt file (works only in browser)'),br(),br(),
+                         downloadButton('downloadData1', 'Download Uber 2021 reviews CSV file (works only in browser)'),br(),br(),
+                         downloadButton('downloadData4', 'Download One Plus reviews TXT file (works only in browser)'),br(),br(),
+			 downloadButton('downloadData5', 'Download Bahubali reviews TXT file (works only in browser)'),br(),br(),
+			 downloadButton('downloadData6', 'Download FGD transcript on cosmetics PDF file (works only in browser)'),br(),br(),
                          p("Please note that download will not work with RStudio interface. Download will work only in web-browsers. So open this app in a web-browser and then download the example file. For opening this app in web-browser click on \"Open in Browser\" as shown below -"),
                          img(src = "example1.png")
                        
                          ),
 
 		tabPanel("Data Summary",
-                         h3("Uploaded data size"),
+                         h4("Uploaded data size"),
                          verbatimTextOutput("up_size"),
 			 
-                          h3("Sentence level summary"),
+                          h4("Sentence level summary"),
                              htmlOutput("text01"),
                              hr(),
-                             h3("Token level summary"),
+                             h4("Token level summary"),
                              htmlOutput("text02"),
                              hr(),
-                         h3("Sample of uploaded datasest"),
+                         h4("Sample of uploaded datasest"),
                          DT::dataTableOutput("samp_data")
                          ),                
                 
