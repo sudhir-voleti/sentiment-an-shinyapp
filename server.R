@@ -45,7 +45,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
         return(calib)} else if(file_ext(input$file$datapath)=="pdf")
       {          
         pdf_text0 <- pdftools::pdf_text(input$file$datapath)                
-        pdf_text1 <- str_replace_all(pdf_text0, 
+        pdf_text1 <- stringr::str_replace_all(pdf_text0, 
                                      pattern = "([.!?])\n(\\w)", 
                                      replacement = "\\1\n\n\\2") 
   
@@ -477,3 +477,4 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
     })  
 
 })
+
