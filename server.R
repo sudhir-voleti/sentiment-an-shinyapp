@@ -55,7 +55,7 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
   
         # Combine text from all pages while preserving line breaks
         pdf_text1 <- paste(pdf_text1, collapse = "\n\n")
-        pdf_text2 <- str_split(pdf_text1, pattern = "\n\n")
+        pdf_text2 <- stringr::str_split(pdf_text1, pattern = "\n\n")
           Doc.id <- seq(1, length(pdf_text2[[1]]))
           calib <- data.frame(Doc.id = Doc.id, text = pdf_text2[[1]])
           colnames(calib) <- c("Doc.id","text")
@@ -63,10 +63,10 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
           return(calib)  } else
       {
       Document = read.csv(input$file$datapath ,header=TRUE, sep = ",", stringsAsFactors = F)
-      Document[,1] <- str_to_title(Document[,1])
+      Document[,1] <- stringr::str_to_title(Document[,1])
       Document[,1] <- make.names(Document[,1], unique=TRUE)
       Document[,1] <- tolower(Document[,1])
-      Document[,1] <- str_replace_all(Document[,1],"\\.","_")
+      Document[,1] <- stringr::str_replace_all(Document[,1],"\\.","_")
       Document<-Document[complete.cases(Document), ]
       Document <- Document[!(duplicated(Document[,1])), ]
       rownames(Document) <- Document[,1]
@@ -477,4 +477,5 @@ lexicon_data<-read.csv('sentiments.csv',stringsAsFactors=FALSE)# read lexcicons 
     })  
 
 })
+
 
